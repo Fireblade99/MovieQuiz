@@ -1,13 +1,6 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
-    // MARK: - Outlets
-    @IBOutlet private var textLabel: UILabel!
-    @IBOutlet private var counterLabel: UILabel!
-    @IBOutlet private var imageView: UIImageView!
-    @IBOutlet private var questionTitleLabel: UILabel!
-    @IBOutlet private var noButton: UIButton!
-    @IBOutlet private var yesButton: UIButton!
     
     // MARK: - Data Models
     struct QuizQuestion {
@@ -27,6 +20,14 @@ final class MovieQuizViewController: UIViewController {
         let text: String
         let buttonText: String
     }
+    
+    // MARK: - Outlets
+    @IBOutlet private var textLabel: UILabel!
+    @IBOutlet private var counterLabel: UILabel!
+    @IBOutlet private var imageView: UIImageView!
+    @IBOutlet private var questionTitleLabel: UILabel!
+    @IBOutlet private var noButton: UIButton!
+    @IBOutlet private var yesButton: UIButton!
     
     // MARK: - Properties
     private let questions: [QuizQuestion] = [
