@@ -42,7 +42,7 @@
                                                         </attributes>
                                                     </fragment>
                                                 </attributedString>
-                                                <nil key="highlightedColor"/>
+                                                <color key="highlightedColor" name="YP White"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D6b-pu-tUa" userLabel="Index Label">
                                                 <rect key="frame" x="338" y="0.0" width="36" height="23.5"/>
@@ -55,7 +55,7 @@
                                                         </attributes>
                                                     </fragment>
                                                 </attributedString>
-                                                <nil key="highlightedColor"/>
+                                                <color key="highlightedColor" name="YP White"/>
                                             </label>
                                         </subviews>
                                     </stackView>
@@ -75,7 +75,7 @@
                                         <rect key="frame" x="0.0" y="624.5" width="374" height="99.5"/>
                                         <fontDescription key="fontDescription" name="YSDisplay-Bold" family="YS Display" pointSize="23"/>
                                         <color key="textColor" name="YP White"/>
-                                        <nil key="highlightedColor"/>
+                                        <color key="highlightedColor" name="YP White"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Pod-TO-oEF">
                                         <rect key="frame" x="0.0" y="744" width="374" height="60"/>

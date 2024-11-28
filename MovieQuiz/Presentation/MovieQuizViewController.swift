@@ -42,6 +42,10 @@ final class MovieQuizViewController: UIViewController {
         QuizQuestion(image: "Vivarium", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false)
     ]
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var isInteractionEnabled = true
@@ -92,61 +96,70 @@ final class MovieQuizViewController: UIViewController {
     private func showAnswerResult(isCorrect: Bool) {
         guard isInteractionEnabled else { return }
         isInteractionEnabled = false
+        
+        // Отключаем кнопки
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
+        
         if isCorrect { correctAnswers += 1 }
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.green.cgColor : UIColor.red.cgColor
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showNextQuestionOrResults()
             self.isInteractionEnabled = true
+            
+            // Включаем кнопки
+            self.noButton.isEnabled = true
+            self.yesButton.isEnabled = true
         }
     }
     
     private func showNextQuestionOrResults() {
-            imageView.layer.borderWidth = 0
-            imageView.layer.borderColor = UIColor.clear.cgColor
-            if currentQuestionIndex == questions.count - 1 {
-                        let viewModel = QuizResultsViewModel(
-                            title: "Этот раунд окончен!",
-                            text: "Ваш результат: \(correctAnswers)/\(questions.count)",
-                            buttonText: "Сыграть ещё раз"
-                        )
-                        show(quiz: viewModel)
-                    } else {
-                        currentQuestionIndex += 1
-                        let nextQuestion = questions[currentQuestionIndex]
-                        let viewModel = convert(model: nextQuestion)
-                        show(quiz: viewModel)
-                    }
-                }
-                
-                private func show(quiz result: QuizResultsViewModel) {
-                    let alert = UIAlertController(
-                        title: result.title,
-                        message: result.text,
-                        preferredStyle: .alert
-                    )
-                    let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
-                        self.currentQuestionIndex = 0
-                        self.correctAnswers = 0
-                        let firstQuestion = self.questions[self.currentQuestionIndex]
-                        let viewModel = self.convert(model: firstQuestion)
-                        self.show(quiz: viewModel)
-                    }
-                    alert.addAction(action)
-                    self.present(alert, animated: true, completion: nil)
-                }
-
-                // MARK: - Actions
-                @IBAction private func noButtonClicked(_ sender: UIButton) {
-                    let givenAnswer = false
-                    showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-                }
-
-                @IBAction private func yesButtonClicked(_ sender: UIButton) {
-                    let givenAnswer = true
-                    showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-                }
+        imageView.layer.borderWidth = 0
+        imageView.layer.borderColor = UIColor.clear.cgColor
+        if currentQuestionIndex == questions.count - 1 {
+            let viewModel = QuizResultsViewModel(
+            title: "Этот раунд окончен!",
+            text: "Ваш результат: \(correctAnswers)/\(questions.count)",
+            buttonText: "Сыграть ещё раз"
+        )
+        show(quiz: viewModel)
+        } else {
+            currentQuestionIndex += 1
+            let nextQuestion = questions[currentQuestionIndex]
+            let viewModel = convert(model: nextQuestion)
+            show(quiz: viewModel)
             }
+        }
+                
+    private func show(quiz result: QuizResultsViewModel) {
+        let alert = UIAlertController(
+            title: result.title,
+            message: result.text,
+            preferredStyle: .alert
+            )
+        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            let firstQuestion = self.questions[self.currentQuestionIndex]
+            let viewModel = self.convert(model: firstQuestion)
+            self.show(quiz: viewModel)
+            }
+            alert.addAction(action)
+            self.present(alert, animated: true, completion: nil)
+            }
+
+    // MARK: - Actions
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
+        let givenAnswer = false
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+            }
+
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        let givenAnswer = true
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+            }
+}
