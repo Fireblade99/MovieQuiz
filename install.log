@@ -1,0 +1,9 @@
+[19:04:32 2024-12-08] FETCHING Version 2.38.5
+[19:04:32 2024-12-08] CREATING /Users/fireblade1401/.spicetify
+[19:04:32 2024-12-08] DOWNLOADING https://github.com/spicetify/cli/releases/download/v2.38.5/spicetify-2.38.5-darwin-arm64.tar.gz
+[19:04:57 2024-12-08] EXTRACTING /Users/fireblade1401/.spicetify/spicetify.tar.gz
+[19:04:57 2024-12-08] SETTING EXECUTABLE PERMISSIONS TO /Users/fireblade1401/.spicetify/spicetify
+[19:04:57 2024-12-08] REMOVING /Users/fireblade1401/.spicetify/spicetify.tar.gz
+[19:04:57 2024-12-08] APPENDING /Users/fireblade1401/.spicetify to PATH in /Users/fireblade1401/.zshrc
+[19:04:57 2024-12-08] spicetify v2.38.5 was installed successfully to /Users/fireblade1401/.spicetify
+[19:04:57 2024-12-08] Run 'spicetify --help' to get started
