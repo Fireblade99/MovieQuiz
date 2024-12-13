@@ -87,17 +87,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showResults(_ result: QuizResultsViewModel) {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
-
+        
         let totalAccuracy = String(format: "%.2f", statisticService.totalAccuracy)
         let bestGame = statisticService.bestGame
-
+        
         let message = """
             Текущий результат: \(correctAnswers)/\(questionsAmount)
             Количество сыгранных квизов: \(statisticService.gamesCount)
             Рекорд: \(bestGame.correct)/\(bestGame.total) (\(bestGame.date.dateTimeString))
             Средняя точность: \(totalAccuracy)%
             """
-
+        
         let alertModel = AlertModel(
             title: result.title,
             message: message,
@@ -107,10 +107,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             self.questionFactory?.requestNextQuestion()
-            }
-
-        alertPresenter?.presentAlert(model: alertModel)
         }
+        
+        alertPresenter?.presentAlert(model: alertModel)
+    }
     
     private func showAnswerResult(isCorrect: Bool) {
         guard isInteractionEnabled else { return }
@@ -166,7 +166,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let givenAnswer = false
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
-
+    
     @IBAction func yesButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else {
             return
