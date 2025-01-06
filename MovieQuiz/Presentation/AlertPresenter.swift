@@ -28,4 +28,9 @@ class AlertPresenter {
         alert.addAction(action)
         viewController?.present(alert, animated: true, completion: nil)
     }
+    
+    func show(in viewController: UIViewController, model: AlertModel) {
+        presentAlert(model: model)
+    }
+
 }

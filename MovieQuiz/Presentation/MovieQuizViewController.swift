@@ -1,5 +1,8 @@
 import UIKit
 
+// ВАЖНАЯ РЕМАРКА: Проверял работу приложения с разными апи ключами, все равно ругается на сервис, и ошибка {"items":[],"errorMessage":"Invalid API Key. Upgrade your account to use the service."}. К примеру, делал запрос как из урока https://tv-api.com/en/API/Top250Movies/k_kiwxbi4y или же https://tv-api.com/en/API/Top250Movies/k_0tbucfbo ошибка везде одинаковая...
+
+
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Outlets
@@ -9,6 +12,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var questionTitleLabel: UILabel!
     @IBOutlet private var noButton: UIButton!
     @IBOutlet private var yesButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
     private var alertPresenter: AlertPresenter?
@@ -29,20 +33,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         setupUI()
         
-        alertPresenter = AlertPresenter(viewController: self) // Инъекция ViewController
+        alertPresenter = AlertPresenter(viewController: self)
         
-        let factory = QuestionFactory()
-        factory.delegate = self // Устанавливаем делегата
+        let factory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         self.questionFactory = factory
         
-        // Запрашиваем первый вопрос
-        questionFactory?.requestNextQuestion()
+        showLoadingIndicator()
+        questionFactory?.loadData()
         
         // Настраиваем кнопки
         noButton.layer.cornerRadius = 15
         noButton.clipsToBounds = true
         yesButton.layer.cornerRadius = 15
         yesButton.clipsToBounds = true
+        
+        
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -56,6 +61,78 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         // Обновляем UI в главном потоке
         DispatchQueue.main.async { [weak self] in
             self?.showQuizStep(viewModel) // Используем метод для отображения вопроса
+        }
+    }
+    
+    // MARK: - Show loadScreen
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
+        activityIndicator.startAnimating() // включаем анимацию
+    }
+    
+    // MARK: - hideLoadScreen
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    // MARK: - load data
+    
+    func didLoadDataFromServer() {
+        DispatchQueue.main.async {
+            self.activityIndicator.isHidden = true // скрываем индикатор загрузки
+            self.questionFactory?.requestNextQuestion() // запрашиваем следующий вопрос
+        }
+    }
+    
+    
+    func didFailToLoadData(with error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            self?.hideLoadingIndicator()
+            let message = error.localizedDescription
+            self?.showLoadErrorAlert(message: message)
+        }
+    }
+    
+    // MARK: - if data load error, we should try again
+    
+    private func retryLoading() {
+        showLoadingIndicator()  // Показываем индикатор загрузки
+        questionFactory?.loadData()  // Повторяем запрос данных
+    }
+    
+    private func showLoadErrorAlert(message: String) {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.retryLoading()
+        })
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    
+    
+    // MARK: - download error
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        
+        if let presenter = alertPresenter {
+            presenter.show(in: self, model: model)
         }
     }
     
@@ -73,10 +150,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Logic
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-        )
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     
     private func showQuizStep(_ step: QuizStepViewModel) {
@@ -175,3 +251,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
+
+
+
