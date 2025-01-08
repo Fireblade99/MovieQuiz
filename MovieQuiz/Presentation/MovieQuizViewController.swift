@@ -1,8 +1,5 @@
 import UIKit
 
-// ВАЖНАЯ РЕМАРКА: Проверял работу приложения с разными апи ключами, все равно ругается на сервис, и ошибка {"items":[],"errorMessage":"Invalid API Key. Upgrade your account to use the service."}. К примеру, делал запрос как из урока https://tv-api.com/en/API/Top250Movies/k_kiwxbi4y или же https://tv-api.com/en/API/Top250Movies/k_0tbucfbo ошибка везде одинаковая...
-
-
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Outlets
@@ -89,10 +86,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     func didFailToLoadData(with error: Error) {
         DispatchQueue.main.async { [weak self] in
             self?.hideLoadingIndicator()
+            
+            // Добавляем лог для отладки
+            print("Ошибка загрузки данных: \(error.localizedDescription)")
+            
             let message = error.localizedDescription
             self?.showLoadErrorAlert(message: message)
         }
     }
+
     
     // MARK: - if data load error, we should try again
     

@@ -62,16 +62,23 @@ class QuestionFactory: QuestionFactoryProtocol {
                 return
             }
             
-            var imageData = Data()
-            do {
-                imageData = try Data(contentsOf: movie.imageURL)
-                print("Изображение загружено успешно для \(movie.title)")
-            } catch {
-                print("Ошибка загрузки изображения для \(movie.title): \(error)")
+            let imageData = Data()
+            let task = URLSession.shared.dataTask(with: movie.resizedImageURL) { data, response, error in
+                if let data = data {
+                    DispatchQueue.main.async {
+                        let question = QuizQuestion(image: data, text: "Рейтинг этого фильма больше чем 7?", correctAnswer: Float(movie.rating ?? "0") ?? 0 > 7)
+                        self.delegate?.didReceiveNextQuestion(question: question)
+                    }
+                } else if let error = error {
+                    print("Ошибка загрузки изображения: \(error.localizedDescription)")
+                }
             }
+            task.resume()
+
             
-            let rating = Float(movie.rating) ?? 0
-            let text = "Рейтинг этого фильма больше чем 7?"
+            let rating = Float(movie.rating ?? "0") ?? 0
+            let text = "Рейтинг этого фильма больше чем \(rating > 7 ? "7" : "5")?"
+
             let correctAnswer = rating > 7
             
             let question = QuizQuestion(image: imageData,

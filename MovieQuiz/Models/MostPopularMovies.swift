@@ -7,27 +7,19 @@
 import Foundation
 
 struct MostPopularMovies: Decodable {
-    let errorMessage: String
+    let errorMessage: String?
     let items: [MostPopularMovie]
 }
 
 struct MostPopularMovie: Decodable {
     let title: String
-    let rating: String
+    let rating: String?
     let imageURL: URL
     
     var resizedImageURL: URL {
-        // создаем строку из адреса
         let urlString = imageURL.absoluteString
-        //  обрезаем лишнюю часть и добавляем модификатор желаемого качества
         let imageUrlString = urlString.components(separatedBy: "._")[0] + "._V0_UX600_.jpg"
-        
-        // пытаемся создать новый адрес, если не получается возвращаем старый
-        guard let newURL = URL(string: imageUrlString) else {
-            return imageURL
-        }
-        
-        return newURL
+        return URL(string: imageUrlString) ?? imageURL
     }
     
     private enum CodingKeys: String, CodingKey {
@@ -36,5 +28,6 @@ struct MostPopularMovie: Decodable {
         case imageURL = "image"
     }
 }
+
 
 
