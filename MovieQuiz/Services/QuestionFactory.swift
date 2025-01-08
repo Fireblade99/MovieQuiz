@@ -62,34 +62,44 @@ class QuestionFactory: QuestionFactoryProtocol {
                 return
             }
             
-            let imageData = Data()
-            let task = URLSession.shared.dataTask(with: movie.resizedImageURL) { data, response, error in
-                if let data = data {
-                    DispatchQueue.main.async {
-                        let question = QuizQuestion(image: data, text: "Рейтинг этого фильма больше чем 7?", correctAnswer: Float(movie.rating ?? "0") ?? 0 > 7)
-                        self.delegate?.didReceiveNextQuestion(question: question)
-                    }
-                } else if let error = error {
-                    print("Ошибка загрузки изображения: \(error.localizedDescription)")
-                }
+            // Загрузка изображения напрямую через Data(contentsOf:)
+            let imageData: Data
+            do {
+                imageData = try Data(contentsOf: movie.imageURL)
+                print("Изображение успешно загружено для \(movie.title)")
+            } catch {
+                print("Ошибка загрузки изображения для \(movie.title): \(error)")
+                return
             }
-            task.resume()
-
             
-            let rating = Float(movie.rating ?? "0") ?? 0
-            let text = "Рейтинг этого фильма больше чем \(rating > 7 ? "7" : "5")?"
-
-            let correctAnswer = rating > 7
+            // Генерация случайного значения рейтинга
+            let randomRating = Float.random(in: 5.0...9.0)
             
-            let question = QuizQuestion(image: imageData,
-                                        text: text,
-                                        correctAnswer: correctAnswer)
+            // Генерация случайного типа вопроса
+            let isGreaterThan = Bool.random()
             
+            // Формирование текста вопроса
+            let questionText = isGreaterThan ?
+            "Рейтинг этого фильма больше чем \(String(format: "%.1f", randomRating))?" :
+            "Рейтинг этого фильма меньше чем \(String(format: "%.1f", randomRating))?"
+            
+            // Определение правильного ответа
+            let movieRating = Float(movie.rating ?? "0") ?? 0
+            let correctAnswer = isGreaterThan ? (movieRating > randomRating) : (movieRating < randomRating)
+            
+            // Создаём вопрос
+            let question = QuizQuestion(
+                image: imageData,
+                text: questionText,
+                correctAnswer: correctAnswer
+            )
+            
+            // Обновляем UI в главном потоке
             DispatchQueue.main.async {
                 self.delegate?.didReceiveNextQuestion(question: question)
             }
         }
     }
-    
+
 }
 
