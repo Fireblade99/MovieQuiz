@@ -7,30 +7,30 @@
 
 import UIKit
 
-class AlertPresenter {
-    private weak var viewController: UIViewController? // Контроллер, который будет показывать алерт
+final class AlertPresenter: AlertPresenterProtocol {
     
-    init(viewController: UIViewController) {
-        self.viewController = viewController
+    /// Private var delegate adds support for present() method in showAlert method
+    private weak var delegate: UIViewController?
+    
+    init(delegate: UIViewController) {
+        self.delegate = delegate
     }
     
-    func presentAlert(model: AlertModel) {
+    /// Method which shows round quiz results. Accepts AlertModel and returns nil. Sets alert identifier
+    func showAlert(quiz alertModel: AlertModel) {
         let alert = UIAlertController(
-            title: model.title,
-            message: model.message,
-            preferredStyle: .alert
-        )
+            title: alertModel.title,
+            message: alertModel.message,
+            preferredStyle: .alert)
         
-        let action = UIAlertAction(title: model.buttonText, style: .default) { _ in
-            model.completion?() // Выполняем замыкание, если оно есть
-        }
+        let action = UIAlertAction(
+            title: alertModel.buttonText,
+            style: .default) { _ in
+                alertModel.completion()
+            }
         
         alert.addAction(action)
-        viewController?.present(alert, animated: true, completion: nil)
+        alert.view.accessibilityIdentifier = "Result Alert"
+        delegate?.present(alert, animated: true, completion: nil)
     }
-    
-    func show(in viewController: UIViewController, model: AlertModel) {
-        presentAlert(model: model)
-    }
-
 }
