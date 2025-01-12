@@ -57,15 +57,16 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     /// Method for checking if the next question is shown
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.viewController?.show(quiz: viewModel)
+        if let question = question {
+            currentQuestion = question
+            let viewModel = convert(model: question)
+            DispatchQueue.main.async { [weak self] in
+                self?.viewController?.show(quiz: viewModel)
+            }
+        } else {
+            // Добавляем лог для диагностики
+            print("Error: Received nil question at index \(currentQuestionIndex)")
+            assertionFailure("QuestionFactory returned nil question")
         }
     }
     
