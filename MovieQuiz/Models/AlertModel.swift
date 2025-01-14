@@ -8,9 +8,12 @@
 import Foundation
 
 struct AlertModel {
-    let title: String      // Заголовок алерта
-    let message: String    // Сообщение
-    let buttonText: String // Текст кнопки
-    let completion: (() -> Void)? // Замыкание, выполняемое при нажатии на кнопку
+    /// Headline of alert
+    var title: String
+    /// Text of alert's message
+    var message: String
+    /// Text of alert's button
+    var buttonText: String
+    /// Closure without parameters for action button alert
+    let completion: () -> Void
 }
-

@@ -1,9 +1,4 @@
-//
-//  StatisticServiceProtocol.swift
-//  MovieQuiz
-//
-//  Created by Руслан Руцкой on 11.12.2024.
-//
+import Foundation
 
 protocol StatisticServiceProtocol {
     var gamesCount: Int { get }

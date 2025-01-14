@@ -1,21 +1,39 @@
 import Foundation
 
-final class StatisticServiceImplementation {
+final class StatisticService: StatisticServiceProtocol {
     private let storage: UserDefaults = .standard
     
-    // Перечисление для ключей UserDefaults
     private enum Keys: String {
+        case correct
+        case bestGame
         case gamesCount
-        case bestGameCorrect
-        case bestGameTotal
-        case bestGameDate
+        
+        case total
         case correctAnswers
-        case totalQuestions
+        case totalCorrectAnswers
+        
+        case date
+        case currentGameDate
+        case currentCorrectAnswers
+        case currentQuestionsAmount
     }
-}
-
-// Реализация протокола
-extension StatisticServiceImplementation: StatisticServiceProtocol {
+    
+    /// Model for game result data
+    var bestGame: GameResult {
+        get {
+            let correct = storage.integer(forKey: Keys.correct.rawValue)
+            let total = storage.integer(forKey: Keys.total.rawValue)
+            let date = storage.object(forKey: Keys.date.rawValue) as? Date ?? Date()
+            return GameResult(correct: correct, total: total, date: date)
+        }
+        set {
+            storage.set(newValue, forKey: Keys.correct.rawValue)
+            storage.set(newValue, forKey: Keys.total.rawValue)
+            storage.set(newValue, forKey: Keys.date.rawValue)
+        }
+    }
+    
+    /// Total games played
     var gamesCount: Int {
         get {
             storage.integer(forKey: Keys.gamesCount.rawValue)
@@ -25,44 +43,36 @@ extension StatisticServiceImplementation: StatisticServiceProtocol {
         }
     }
     
-    var bestGame: GameResult {
+    /// Total correct answers provided
+    private var totalCorrectAnswers: Int {
         get {
-            // Получаем значения для лучшего результата из UserDefaults
-            let correct = storage.integer(forKey: Keys.bestGameCorrect.rawValue)
-            let total = storage.integer(forKey: Keys.bestGameTotal.rawValue)
-            let date = storage.object(forKey: Keys.bestGameDate.rawValue) as? Date ?? Date()
-            
-            return GameResult(correct: correct, total: total, date: date)
+            storage.integer(forKey: Keys.totalCorrectAnswers.rawValue)
         }
         set {
-            // Сохраняем значения нового лучшего результата
-            storage.set(newValue.correct, forKey: Keys.bestGameCorrect.rawValue)
-            storage.set(newValue.total, forKey: Keys.bestGameTotal.rawValue)
-            storage.set(newValue.date, forKey: Keys.bestGameDate.rawValue)
+            storage.set(newValue, forKey: Keys.totalCorrectAnswers.rawValue)
         }
     }
     
+    /// Calculates answers' accuracy percentage
     var totalAccuracy: Double {
-        // Рассчитываем общую точность
-        let correct = storage.integer(forKey: Keys.correctAnswers.rawValue)
-        let total = storage.integer(forKey: Keys.totalQuestions.rawValue)
-        return total == 0 ? 0 : Double(correct) / Double(total) * 100
+        return Double(totalCorrectAnswers) / Double(gamesCount * 10) * 100.0
     }
     
+    /// Processes number of correct answers,  questions, games played. Updates the best game score and date
     func store(correct count: Int, total amount: Int) {
-        // Увеличиваем счётчик игр
         gamesCount += 1
         
-        // Сохраняем общее количество правильных ответов и вопросов
-        let previousCorrect = storage.integer(forKey: Keys.correctAnswers.rawValue)
-        let previousTotal = storage.integer(forKey: Keys.totalQuestions.rawValue)
-        storage.set(previousCorrect + count, forKey: Keys.correctAnswers.rawValue)
-        storage.set(previousTotal + amount, forKey: Keys.totalQuestions.rawValue)
+        let currentCorrectAnswers = storage.integer(forKey: Keys.currentCorrectAnswers.rawValue) + count
+        let currentQuestionsAmount = storage.integer(forKey: Keys.currentQuestionsAmount.rawValue) + amount
+        let currentGameDate = storage.object(forKey: Keys.currentGameDate.rawValue) as? Date ?? Date()
         
-        // Проверяем, является ли текущий результат лучшим
-        let newResult = GameResult(correct: count, total: amount, date: Date())
-        if newResult.isBetterThan(bestGame) {
-            bestGame = newResult
+        totalCorrectAnswers += currentCorrectAnswers
+        storage.set(currentQuestionsAmount, forKey: Keys.total.rawValue)
+        
+        let currentGame = GameResult(correct: count, total: amount, date: Date())
+        if currentGame.isBetterThan(bestGame) {
+            storage.set(currentCorrectAnswers, forKey: Keys.correct.rawValue)
+            storage.set(currentGameDate, forKey: Keys.date.rawValue)
         }
     }
 }
